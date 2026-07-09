@@ -2,8 +2,10 @@ import { useState } from 'react';
 import type { TabelaPreco } from './types';
 
 export function FormularioPrecos() {
-  // 1. Nossa Memória (useState)
-  // Iniciamos todos os valores com zero. O TypeScript garante que não falte nenhum turno!
+// ==========================================
+  // ZONA DA LÓGICA (Memória e Ações)
+  // ==========================================
+  
   const [precos, setPrecos] = useState<TabelaPreco>({
     am: 0,
     pm: 0,
@@ -11,6 +13,28 @@ export function FormularioPrecos() {
     sdd: 0
   });
 
+  async function salvarDados() {
+    try {
+      const resposta = await fetch("http://localhost:8080/api/precos", {
+        method: "POST", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(precos) 
+      });
+
+      if (resposta.ok) {
+        alert("Sucesso! Tabela salva no banco de dados.");
+      } else {
+        alert("Ops! O Back-end recusou os dados.");
+      }
+    } catch (erro) {
+      alert("Erro de conexão. O servidor Java está ligado?");
+      console.error(erro);
+    }
+  }
+
+  // ==========================================
+  // ZONA VISUAL
+  // ==========================================
   return (
     <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
@@ -25,10 +49,9 @@ export function FormularioPrecos() {
             type="number"
             className="border-2 border-gray-300 rounded-md p-2 focus:border-blue-500 focus:outline-none"
             placeholder="R$ 0,00"
-            // A via de mão dupla que estudamos:
             value={precos.am}
             onChange={(evento) => {
-              // Pegamos tudo que já existe na caixa (...precos) e atualizamos SÓ o "am"
+              // é pego tudo que existe na caixa e atualiza apenas o am
               setPrecos({ ...precos, am: Number(evento.target.value) });
             }}
           />
@@ -76,7 +99,10 @@ export function FormularioPrecos() {
        
       </div>
 
-      <button className="w-full mt-6 bg-blue-600 text-white font-bold py-3 rounded-md hover:bg-blue-700 transition">
+      <button 
+        onClick={salvarDados}
+        className="w-full mt-6 bg-blue-600 text-white font-bold py-3 rounded-md hover:bg-blue-700 transition"
+      >
         Salvar Configuração
       </button>
     </div>
