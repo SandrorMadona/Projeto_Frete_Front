@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { TabelaPreco } from './types';
 
 export function FormularioPrecos() {
@@ -11,9 +11,28 @@ export function FormularioPrecos() {
     pm: 0,
     sd: 0,
     sdd: 0
-  });
+  }); 
 
-  async function salvarDados() {
+
+
+  useEffect(() => {
+    async function carregarPrecoSalvo(){
+      try{
+        const resposta = await fetch("http://localhost:8080/api/precos");
+        const dados = await resposta.json(); //Transforma o retorno do db em json
+
+        setPrecos(dados);
+
+      }catch(error){
+        console.error("Não foi possivel acessar valores no banco de dados", error)
+      }
+    }
+  carregarPrecoSalvo();
+  },[]);
+
+
+
+  async function salvarPrecos() {
     try {
       const resposta = await fetch("http://localhost:8080/api/precos", {
         method: "POST", 
@@ -26,9 +45,9 @@ export function FormularioPrecos() {
       } else {
         alert("Ops! O Back-end recusou os dados.");
       }
-    } catch (erro) {
+    } catch (error) {
       alert("Erro de conexão. O servidor Java está ligado?");
-      console.error(erro);
+      console.error(error);
     }
   }
 
@@ -100,7 +119,7 @@ export function FormularioPrecos() {
       </div>
 
       <button 
-        onClick={salvarDados}
+        onClick={salvarPrecos}
         className="w-full mt-6 bg-blue-600 text-white font-bold py-3 rounded-md hover:bg-blue-700 transition"
       >
         Salvar Configuração
